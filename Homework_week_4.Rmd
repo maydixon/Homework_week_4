@@ -2,8 +2,8 @@
 title: "Homework_week_4"
 author: "May Dixon"
 date: "September 28- October 3rd, 2016"
-output: html_document
----
+=======
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
