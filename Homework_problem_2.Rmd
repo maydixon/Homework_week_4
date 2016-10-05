@@ -1,0 +1,132 @@
+---
+title: "Homework_problem_2"
+author: "May Dixon"
+date: "October 5, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=FALSE}
+R<- read.csv("https://raw.githubusercontent.com/difiore/ADA2016/master/zombies.csv", sep=",", header=TRUE)
+```
+##1.  
+```{r}
+attach(R)
+mean_z<- function(x) { #generic mean function
+      sum(x)/length(x) 
+}
+sd_z<-function(x){ #population standard deviation function
+      sqrt(sum((x-mean_z(x))^2)/length(x))
+}
+# Mean and standard deviation of height
+mean_z(height)
+sd_z(height)
+mean
+#mean and sd of weight
+mean_z(weight)
+sd_z(weight)
+
+#mean and sd of zombies killed
+mean_z(zombies_killed)
+sd_z(zombies_killed)
+
+# mean and sd of years of education
+mean_z(years_of_education)
+sd_z(years_of_education)
+
+# mean and sd of age
+mean_z(age)
+sd_z(age)
+```
+
+##2 
+Make boxlots with ggplot by gender:
+
+```{r, echo=FALSE}
+library(ggplot2)
+hg <- ggplot(data = R, aes(x = gender, y = height))
+hg <- hg + geom_boxplot()
+hg <- hg + theme(axis.text.x = element_text(angle = 90))
+hg <- hg + ylab("Height (inches)")
+hg
+
+wg <- ggplot(data = R, aes(x = gender, y = weight))
+wg <- wg + geom_boxplot()
+wg <- wg + theme(axis.text.x = element_text(angle = 90))
+wg <- wg + ylab("Weight (lbs)")
+wg
+
+zg <- ggplot(data = R, aes(x = gender, y = zombies_killed))
+zg <- zg + geom_boxplot()
+zg <- zg + theme(axis.text.x = element_text(angle = 90))
+zg <- zg + ylab("Number of zombies killed")
+zg
+
+eg <- ggplot(data = R, aes(x = gender, y = years_of_education))
+eg <- eg + geom_boxplot()
+eg <- eg + theme(axis.text.x = element_text(angle = 90))
+eg <- eg + ylab("Years of education")
+eg
+
+ag <- ggplot(data = R, aes(x = gender, y = age))
+ag <- ag + geom_boxplot()
+ag <- ag + theme(axis.text.x = element_text(angle = 90))
+ag <- ag + ylab("Age of survivors")
+ag
+```
+
+##3  
+Use ggplot and make a scatterplots of height and weight in relation to age. Do these variables seem to be related? In what way?
+```{r}
+ah <- ggplot(data = R, aes(x = age, y = height))
+ah <- ah + geom_point()
+ah <- ah + xlab("Height of survivors")
+ah <- ah + ylab("age of survivors")
+ah
+
+aw <- ggplot(data = R, aes(x = age, y = weight))
+aw <- aw + geom_point()
+aw <- aw + xlab("Age of survivors")
+aw <- aw + ylab("Weight of survivors")
+aw
+```
+    
+Both height and weight seem to be positively correlated with age, though the correlation seems to be stronger with height than age   
+
+##4 
+Using histograms and Q-Q plots, check whether the quantitative variables seem to be drawn from a normal distribution. Which seem to be and which do not (hint: not all are drawn from the normal distribution)? For those that are not, can you determine what common distribution they are drawn from?
+
+```{r}
+hist(height)
+qqnorm(height)
+
+hist(weight)
+qqnorm(weight)
+
+hist(zombies_killed, xlim=range(0,12))
+qqnorm(zombies_killed)
+
+hist(years_of_education)
+qqnorm(years_of_education)
+
+hist(age)
+qqnorm(age)
+
+```
+
+Height, weight, and age seem to be drawn from relatively normal distributions, whereas zombies killed and years of education do not. These variables are both right skewed, and follow poisson distributions. 
+
+##5.
+Now use the sample() function to sample ONE subset of 30 zombies (without replacement) from this population and calculate the mean and sample standard deviation for each variable. Also estimate the standard error for each variable and construct the 95% confidence interval for each mean. Note that for the variables that are not drawn from the normal distribution, you will need to base your estimate of the CIs on some different distribution.
+
+```{r}
+
+Z_sam <- R[sample(1:1000, 30,
+  	replace=FALSE),] #sampling 30 rows of the greater population
+
+
+```
+
