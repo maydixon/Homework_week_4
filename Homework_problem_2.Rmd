@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 R<- read.csv("https://raw.githubusercontent.com/difiore/ADA2016/master/zombies.csv", sep=",", header=TRUE)
 ```
 ##1.  
-```{r}
+```{r, echo=FALSE}
 attach(R)
 mean_z<- function(x) { #generic mean function
       sum(x)/length(x) 
@@ -24,7 +24,7 @@ sd_z<-function(x){ #population standard deviation function
 # Mean and standard deviation of height
 mean_z(height)
 sd_z(height)
-mean
+
 #mean and sd of weight
 mean_z(weight)
 sd_z(weight)
@@ -85,12 +85,14 @@ ah <- ggplot(data = R, aes(x = age, y = height))
 ah <- ah + geom_point()
 ah <- ah + xlab("Height of survivors")
 ah <- ah + ylab("age of survivors")
+ah <- ah + geom_smooth(method=lm)
 ah
 
 aw <- ggplot(data = R, aes(x = age, y = weight))
 aw <- aw + geom_point()
 aw <- aw + xlab("Age of survivors")
 aw <- aw + ylab("Weight of survivors")
+aw <- aw + geom_smooth(method=lm)
 aw
 ```
     
@@ -122,11 +124,185 @@ Height, weight, and age seem to be drawn from relatively normal distributions, w
 ##5.
 Now use the sample() function to sample ONE subset of 30 zombies (without replacement) from this population and calculate the mean and sample standard deviation for each variable. Also estimate the standard error for each variable and construct the 95% confidence interval for each mean. Note that for the variables that are not drawn from the normal distribution, you will need to base your estimate of the CIs on some different distribution.
 
-```{r}
+```{r, echo=FALSE}
 
 Z_sam <- R[sample(1:1000, 30,
   	replace=FALSE),] #sampling 30 rows of the greater population
+detach(R)
+attach(Z_sam)
+```
 
+####Mean, standard deviation, standard error, and 95% confidence interval for height:
+
+```{r}
+mzs <- mean(height) #mean 
+sdzs <- sd(height) #standard deviation
+sdzs
+sqrt(var(height)) #standard deviation 2
+sqrt(sum((height-mean_z(height))^2)/(length(height)-1)) #standard deviation 3
+#all of these have the same output/ use the same variable, so I'm just going to use the built in one, sqrt
+m_pop<-mean(R$height)
+m_pop
+
+se_z<-function(x){ #function for determining standard error of the means, just define m_pop outisde function
+    m_sam<-mean(x)
+    sqrt(((m_sam - m_pop)^2)/1)
+    
+}
+se_z(height)
+
+#constructing 95% confidence interval
+n<-30
+error <- qnorm(0.975)*sdzs/sqrt(n)
+left <- mzs-error
+right <- mzs+error
+left 
+right
+```
+
+There is a 95% chance that a value drawn from this distribution will be between 68.13 and 71.19
+
+#### Mean, standard deviation, standard error, and 95% confidence interval for weight:
+```{r}
+mzs <- mean(weight) #mean
+mzs
+sdzs <- sd(weight) #standard deviation
+sdzs
+
+m_pop<-mean(R$weight)
+
+se_z(weight) #standard error of the mean
+
+#constructing 95% confidence interval
+n<-30
+error <- qnorm(0.975)*sdzs/sqrt(n)
+left <- mzs-error
+right <- mzs+error
+left #left tail
+right #right tail
+```
+  
+  There is a 95% chance that a value frawn from this distribution will lie between 143.93 and 159.54
+  
+#### Mean, standard deviation, standard error, and 95% confidence interval for zombies killed:
+```{r}
+mzs <- mean(zombies_killed) #mean
+mzs
+sdzs <- sd(zombies_killed) #standard deviation
+sdzs
+
+m_pop<-mean(R$zombies_killed)
+
+se_z(zombies_killed) #standard error of the mean
+
+#constructing 95% confidence interval
+n<-30
+lambdaz <- (sum(zombies_killed))/30 #lambda for this dist (total zombies killed/ # people)
+error <- qpois(0.975, lambda=lambdaz)*sdzs/sqrt(n)
+left <- mzs-error
+right <- mzs+error
+left #left tail
+right #right tail
+```
+  
+  There is a 95% chance that a value drawn from this distribution will lie between 0.5 and 4.3
+  
+#### Mean, standard deviation, standard error, and 95% confidence interval for years of education:
+```{r}
+mzs <- mean(years_of_education) #mean
+mzs
+sdzs <- sd(years_of_education) #standard deviation
+sdzs
+
+m_pop<-mean(R$years_of_education)
+
+se_z(years_of_education) #standard error of the mean
+
+#constructing 95% confidence interval
+n<-30
+lambdaz <- (sum(years_of_education))/30 #lambda for this dist (total years education / # people)
+error <- qpois(0.975, lambda=lambdaz)*sdzs/sqrt(n)
+left <- mzs-error
+right <- mzs+error
+left #left tail
+right #right tail
+```
+  
+  There is a 95% chance that a value drawn from this distribution will lie between 0.8 and 4.9
+  
+#### Mean, standard deviation, standard error, and 95% confidence interval for age:
+```{r}
+mzs <- mean(age) #mean
+mzs
+sdzs <- sd(age) #standard deviation of sample
+sdzs
+
+m_pop<-mean(R$age)
+
+se_z(age) #standard error of the mean
+
+#constructing 95% confidence interval
+n<-30
+error <- qnorm(0.975)*sdzs/sqrt(n)
+left <- mzs-error
+right <- mzs+error
+left #left tail
+right #right tail
+```
+  
+  There is a 95% chance that a value drawn from this distribution will lie between 19.7 and 21.7... which doesn't look right...
+  
+  
+##6
+Now draw 99 more random samples of 30 zombies out and calculate the mean for each of the these samples. Together with the first sample you drew out, you now have a set of 100 means for each variable (each based on 30 observations), which constitutes a sampling distribution for each variable.
+
+
+
+
+```{r}
+detach(Z_sam)
+library(dplyr)
+#########
+Z_sam_list = list()
+mean_heightlist <- NULL
+mean_weightlist<- NULL
+mean_zombiekilllist<- NULL
+mean_educationlist<- NULL
+mean_agelist<- NULL
+
+for (i in 1:99) {
+    # ... make some data
+    z_sam_i <- R[sample(1:1000, 30,replace=FALSE),]
+    #Z_sam_list$i <- i  # maybe you want to keep track of which iteration produced it? maybe doesn't matter to save
+    #Z_sam_list[[i]] <- z_sam_i # add to list  #again doesn't matter
+    mean_heightlist[i]<-mean(z_sam_i$height)
+    mean_weightlist[i]<-mean(z_sam_i$weight)
+    mean_zombiekilllist[i]<-mean(z_sam_i$zombies_killed)
+    mean_educationlist[i]<-mean(z_sam_i$years_of_education)
+    mean_agelist[i]<-mean(z_sam_i$age)
+    
+}
+##########
+zombie_means<- cbind(mean_heightlist, mean_weightlist, mean_zombiekilllist, mean_agelist)
 
 ```
 
+What are the means and standard deviations of this distribution for each variable? How do the standard deviations compare to the standard errors estimated in [5]? What do these sampling distributions look like? Are they normally distributed? What about for those variables that you concluded were not originally drawn from a normal distribution?
+
+```{r}
+library(dplyr)
+zombie_means<-as.data.frame(zombie_means) #this is th means of the bootstrapping
+s <- summarise(zombie_means1, avgH = mean(mean_heightlist), sdH =sd(mean_heightlist),  avgW = mean(mean_weightlist), sdW = sd(mean_weightlist), avgZ = mean(mean_zombiekilllist), sdZ=sd(mean_zombiekilllist), avgE = mean(mean_educationlist), sdE = sd(mean_educationlist), avgA = mean(mean_agelist), sdA=sd(mean_agelist))
+s
+#same for #5
+s_1pop<- summarise(Z_sam, avgH=mean(height), sdH=sd(height), avgW=mean(weight), sdW=sd(weight), avgZ=mean(zombies_killed), sdZ=mean
+
+#same for population means
+hist(mean_weightlist)
+hist(mean_heightlist)
+hist(mean_zombiekilllist)
+hist(mean_educationlist)
+hist(mean_agelist)
+```
+
+The bootstrapped means are closer to the population means. The values drawn from other distributions look normally distributed now. 
