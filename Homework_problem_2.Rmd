@@ -1,7 +1,6 @@
 ---
 title: "Homework_problem_2"
 author: "May Dixon"
-date: "October 5, 2016"
 output: html_document
 ---
 
@@ -13,7 +12,10 @@ knitr::opts_chunk$set(echo = TRUE)
 R<- read.csv("https://raw.githubusercontent.com/difiore/ADA2016/master/zombies.csv", sep=",", header=TRUE)
 ```
 ##1.  
-```{r, echo=FALSE}
+ Calculate the population mean and standard deviation for each quantitative random variable (height, weight, age, number of zombies killed, and years of education). NOTE: You will not want to use the built in var() and sd() commands as these are for samples.
+ 
+ 
+```{r, echo=TRUE}
 attach(R)
 mean_z<- function(x) { #generic mean function
       sum(x)/length(x) 
@@ -21,28 +23,50 @@ mean_z<- function(x) { #generic mean function
 sd_z<-function(x){ #population standard deviation function
       sqrt(sum((x-mean_z(x))^2)/length(x))
 }
-# Mean and standard deviation of height
-mean_z(height)
-sd_z(height)
-
-#mean and sd of weight
-mean_z(weight)
-sd_z(weight)
-
-#mean and sd of zombies killed
-mean_z(zombies_killed)
-sd_z(zombies_killed)
-
-# mean and sd of years of education
-mean_z(years_of_education)
-sd_z(years_of_education)
-
-# mean and sd of age
-mean_z(age)
-sd_z(age)
 ```
 
-##2 
+```{r, include = FALSE, echo=FALSE}
+library(dplyr)
+```
+Means and standard deviations of height, weight, zombies killed, years of education, and age:
+```{r, echo=FALSE}
+summarise(R, mean_z(height) , sd_z(height),mean_z(weight), sd_z(weight), mean_z(zombies_killed), sd_z(zombies_killed), mean_z(years_of_education), sd_z(years_of_education), mean_z(age), sd_z(age) )
+```
+
+```{r, include=FALSE, eval=FALSE}
+#took this out bc more efficient way to do it
+# <!-- Mean and SD of height:    -->
+# <!-- ```{r} -->
+# <!-- # Mean and standard deviation of height -->
+# <!-- mean_z(height) -->
+# <!-- sd_z(height) -->
+# <!-- ``` -->
+# <!-- Mean and SD of weight:    -->
+# <!-- ```{r} -->
+# <!-- #mean and sd of weight -->
+# <!-- mean_z(weight) -->
+# <!-- sd_z(weight) -->
+# <!-- ``` -->
+# <!-- Mean and SD of zombies killed:    -->
+# <!-- ```{r} -->
+# <!-- #mean and sd of zombies killed -->
+# <!-- mean_z(zombies_killed) -->
+# <!-- sd_z(zombies_killed) -->
+# <!-- ``` -->
+# <!-- Mean and SD of education years:    -->
+# <!-- ```{r} -->
+# <!-- # mean and sd of years of education -->
+# <!-- mean_z(years_of_education) -->
+# <!-- sd_z(years_of_education) -->
+# <!-- ``` -->
+# <!-- Mean and SD of age:    -->
+# <!-- ```{r} -->
+# <!-- # mean and sd of age -->
+# <!-- mean_z(age) -->
+# <!-- sd_z(age) -->
+# <!-- ``` -->
+```
+##2. 
 Make boxlots with ggplot by gender:
 
 ```{r, echo=FALSE}
@@ -77,10 +101,12 @@ ag <- ag + theme(axis.text.x = element_text(angle = 90))
 ag <- ag + ylab("Age of survivors")
 ag
 ```
-
-##3  
+  
+  Hooray egalitarian universe!
+  
+##3.  
 Use ggplot and make a scatterplots of height and weight in relation to age. Do these variables seem to be related? In what way?
-```{r}
+```{r, echo=FALSE}
 ah <- ggplot(data = R, aes(x = age, y = height))
 ah <- ah + geom_point()
 ah <- ah + xlab("Height of survivors")
@@ -98,10 +124,10 @@ aw
     
 Both height and weight seem to be positively correlated with age, though the correlation seems to be stronger with height than age   
 
-##4 
+##4. 
 Using histograms and Q-Q plots, check whether the quantitative variables seem to be drawn from a normal distribution. Which seem to be and which do not (hint: not all are drawn from the normal distribution)? For those that are not, can you determine what common distribution they are drawn from?
 
-```{r}
+```{r, echo=FALSE}
 hist(height)
 qqnorm(height)
 
@@ -119,7 +145,7 @@ qqnorm(age)
 
 ```
 
-Height, weight, and age seem to be drawn from relatively normal distributions, whereas zombies killed and years of education do not. These variables are both right skewed, and follow poisson distributions. 
+Height, weight, and age seem to be drawn from  normal distributions, whereas zombies killed and years of education do not. These variables are both right skewed, and follow **poisson distributions**. 
 
 ##5.
 Now use the sample() function to sample ONE subset of 30 zombies (without replacement) from this population and calculate the mean and sample standard deviation for each variable. Also estimate the standard error for each variable and construct the 95% confidence interval for each mean. Note that for the variables that are not drawn from the normal distribution, you will need to base your estimate of the CIs on some different distribution.
@@ -160,7 +186,7 @@ left
 right
 ```
 
-There is a 95% chance that a value drawn from this distribution will be between 68.13 and 71.19
+There is a 95% chance that the true mean falls between 68.13 and 71.19
 
 #### Mean, standard deviation, standard error, and 95% confidence interval for weight:
 ```{r}
@@ -205,7 +231,7 @@ left #left tail
 right #right tail
 ```
   
-  There is a 95% chance that a value drawn from this distribution will lie between 0.5 and 4.3
+  There is a 95% chance that the true mean falls between  0.5 and 4.3
   
 #### Mean, standard deviation, standard error, and 95% confidence interval for years of education:
 ```{r}
@@ -228,7 +254,7 @@ left #left tail
 right #right tail
 ```
   
-  There is a 95% chance that a value drawn from this distribution will lie between 0.8 and 4.9
+  There is a 95% chance that the true mean falls between 0.8 and 4.9
   
 #### Mean, standard deviation, standard error, and 95% confidence interval for age:
 ```{r}
@@ -250,12 +276,10 @@ left #left tail
 right #right tail
 ```
   
-  There is a 95% chance that a value drawn from this distribution will lie between 19.7 and 21.7... which doesn't look right...
+  There is a 95% chance that the true mean falls between 19.7 and 21.7
   
-  
-##6
+##6.
 Now draw 99 more random samples of 30 zombies out and calculate the mean for each of the these samples. Together with the first sample you drew out, you now have a set of 100 means for each variable (each based on 30 observations), which constitutes a sampling distribution for each variable.
-
 
 
 
@@ -283,21 +307,45 @@ for (i in 1:99) {
     
 }
 ##########
-zombie_means<- cbind(mean_heightlist, mean_weightlist, mean_zombiekilllist, mean_agelist)
+zombie_means<- cbind(mean_heightlist, mean_weightlist, mean_zombiekilllist,mean_educationlist, mean_agelist)
+#add the sample we already have
+samp1<- c(69.66241, 151.7363, 2.366667, 2.8, 20.70173)
+zombie_means <- rbind(zombie_means, samp1)
 
 ```
 
 What are the means and standard deviations of this distribution for each variable? How do the standard deviations compare to the standard errors estimated in [5]? What do these sampling distributions look like? Are they normally distributed? What about for those variables that you concluded were not originally drawn from a normal distribution?
 
-```{r}
-library(dplyr)
-zombie_means<-as.data.frame(zombie_means) #this is th means of the bootstrapping
-s <- summarise(zombie_means1, avgH = mean(mean_heightlist), sdH =sd(mean_heightlist),  avgW = mean(mean_weightlist), sdW = sd(mean_weightlist), avgZ = mean(mean_zombiekilllist), sdZ=sd(mean_zombiekilllist), avgE = mean(mean_educationlist), sdE = sd(mean_educationlist), avgA = mean(mean_agelist), sdA=sd(mean_agelist))
-s
-#same for #5
-s_1pop<- summarise(Z_sam, avgH=mean(height), sdH=sd(height), avgW=mean(weight), sdW=sd(weight), avgZ=mean(zombies_killed), sdZ=mean
+Means and st. devs of distribution of means:
 
-#same for population means
+```{r, echo=FALSE}
+library(dplyr)
+
+zombie_means<-as.data.frame(zombie_means) #this is th means of the bootstrapping efforts
+
+s <- summarise(zombie_means, avgH = mean(mean_heightlist), sdH =sd(mean_heightlist),  avgW = mean(mean_weightlist), sdW = sd(mean_weightlist), avgZ = mean(mean_zombiekilllist), sdZ=sd(mean_zombiekilllist), avgE = mean(mean_educationlist), sdE = sd(mean_educationlist), avgA = mean(mean_agelist), sdA=sd(mean_agelist))
+s
+```
+
+Can compare to the summary stats for #5:
+```{r, echo=FALSE}
+#can compare to the summary for #5 alone:
+s_1_1samp<- summarise(Z_sam, avgH=mean(height), sdH=sd(height), avgW=mean(weight), sdW=sd(weight), avgZ=mean(zombies_killed), sdZ=sd(zombies_killed), avgE=mean(years_of_education), sdE=sd(years_of_education), avgA=mean(age), sdA=sd(age) )
+s_1_1samp
+```
+
+And also to the true population means:
+```{r, echo=FALSE}
+#and to the true population values
+s_1_pop<- summarise(R, avgH=mean(height), avgW=mean(weight),  avgZ=mean(zombies_killed), avgE=mean(years_of_education),  avgA=mean(age) )
+s_1_pop
+```
+
+^ The bootstrapped means are closer to the population means, and have much smaller standard deviations.
+
+v   The distribution of means drawn from other distributions (zombies killed) look normally distributed now. 
+```{r, echo=FALSE}
+#hists for distribution of means 
 hist(mean_weightlist)
 hist(mean_heightlist)
 hist(mean_zombiekilllist)
@@ -305,4 +353,4 @@ hist(mean_educationlist)
 hist(mean_agelist)
 ```
 
-The bootstrapped means are closer to the population means. The values drawn from other distributions look normally distributed now. 
+#                                    ---- El FIN ----
