@@ -471,6 +471,23 @@ ci # using t test
 #### CHALLENGE:
 
 Adult lowland woolly monkeys are reported to an average body weight of 7.2 kilograms. You are working with an isolated population of woolly monkeys from the Colombian Andes that you think may be a different species from lowland form, and you collect a sample of 15 weights of from adult individuals at that site. From your sample, you calculate a mean of 6.43 kilograms and a standard deviation of 0.98 kilograms. Perform a hypothesis test to test whether body weights in your population are different from the reported average for lowland woolly monkeys by setting up a "two-tailed" hypothesis, carrying out the analysis, and interpreting the p value (assume the significance level is $\alpha$ = 0.05). Your sample is < 30, so you should use the t distribution and do a t test. Do your calculations both by hand and using the `t.test()` function and confirm that they match.
+```{r}
+mu<- 7.2
+m<-6.43
+sd<-0.98
+n<-15
+sem<-sd/sqrt(n)
+z <- (m - mu)/sem
+z
+p<-pt(z, df=n-1)
+p  
+##wrong! idk how
+t.test(6.43, alternative="two.sided", mu=7.2)
+
+
+```
+
+
 
 ``` {r}
 f <- curl("https://raw.githubusercontent.com/difiore/ADA2016/master/woolly-weights.csv")
@@ -487,12 +504,12 @@ t
 alpha <- 0.05
 crit <- qt(1 - alpha/2, df = n-1) # identify critical values
 test <- t < -crit || t > crit # boolean test
-test <- abs(t) > crit
+test <- abs(t) > crit #sufficiently far away from the mean (past or to the critical value)
 t.test(x=x, mu=mu, alternative = "two.sided")
 ```
 
 ## Two Sample Tests - Comparing Means
-
+*can be unbalanced, but variance has to be similar*
 Sometimes we want to compare two groups of measurements to one another, which boils down to a hypothesis test for the difference between two means, $\mu1$ and $\mu2$. The null hypothesis is that the difference between the means is zero.
 
 Before getting to the appropriate test, there are a couple of things that we need to consider:
@@ -504,7 +521,7 @@ Before getting to the appropriate test, there are a couple of things that we nee
 ### Unequal Variances
 
 For the most generic case, where the two samples are independent and we cannot assume the variances of the two samples are equal, we can do what is called **Welch's t test** where our test statistic is:
-
+###Welche's DOES NOT assume the variance is the same, so takes degrees of freedom
 t = (mean(sample 2) - mean(sample 1) - $\mu$) / sqrt [ (variance in sample 2) / (sample 2 size) + (variance in sample 1) / (sample 1 size) ]
 
 Note that $\mu$ here is the expected difference between the means under the null hypothesis, which is zero.
@@ -517,6 +534,16 @@ Let's do example. Load in a file of black-and-white colobus weights and examine 
 f <- curl("https://raw.githubusercontent.com/difiore/ADA2016/master/colobus-weights.csv")
 d <- read.csv(f, header = TRUE, sep = ",", stringsAsFactors = FALSE)
 head(d)
+View(d)
+#May Attempt
+x<-d$weight[d$sex=="male"]
+y<-d$weight[d$sex=="female"]
+
+boxplot(x,y)
+library(dplyr)
+summarise(avgM=(mean(x) SdM<-sd(x) SM<-length(x) AvgY=mean(y) SDY=sd(y) SY=length(y)) #not working
+
+
 x <- d$weight[d$sex == "male"]
 y <- d$weight[d$sex == "female"]
 par(mfrow = c(1, 2))
@@ -563,6 +590,7 @@ t
 There's a simpler t statistic we can use if the variances of the two samples are more or less equal.
 
 t = (mean(sample 2) - mean(sample 1) - $\mu$) / sqrt [ (pooled variance of sample 1 and sample 2) $\times$ (1/n1 + 1/n2) ]
+#just make a plot of your data to see whether your variables have similar spreads
 
 ``` {r}
 s <- sqrt((((n1-1)*s1^2)+((n2-1)*s2^2))/ (n1+n2-2))
@@ -576,7 +604,7 @@ t <- t.test(x=x, y=y, mu=0, var.equal = TRUE, alternative="two.sided")
 t
 ```
 
-A crude test for equality of variances is to divide the larger by the smaller and if the result is < 2, you can go ahead and used the pooled variance version of the test (which has many fewer degrees of freedom).
+#A crude test for equality of variances is to divide the larger by the smaller and if the result is < 2, you can go ahead and used the pooled variance version of the test (which has many fewer degrees of freedom).
 
 In our case, we cannot...
 
@@ -611,6 +639,9 @@ Let's play with a sample... IQs of individuals taking a certain statistics cours
 f <- curl("https://raw.githubusercontent.com/difiore/ADA2016/master/iqs.csv")
 d <- read.csv(f, header = TRUE, sep = ",", stringsAsFactors = FALSE)
 head(d)
+a<-d$IQ.before
+b<-d$IQ.after
+
 x <- d$IQ.before-d$IQ.after
 m <- mean(x)
 mu <- 0 # can leave this out
@@ -627,5 +658,5 @@ crit <- qt(1 - alpha/2, df = n-1) # identify critical values
 crit
 test <- t < -crit || t > crit # boolean test
 test
-t.test(x,df=n-1,alternative = "two.sided")
+t.test(a,b,df=n-1,alternative = "two.sided", paired=TRUE)
 ```
