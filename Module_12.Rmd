@@ -238,11 +238,11 @@ One of the outputs for the model, seen in the 2nd to last line in the output abo
 Another output is the **standard error** of the estimate of each regression coefficient, along with a corresponding **t value** and **p value**. Recall that t statistics are calculated as the difference between an observed and expected value divided by a standard error. The p value comes from evaluating the magnitude of the t statistic against a t distribution with **n-2** degrees of freedom. We can confirm this by hand calculating t and p based on the estimate and the standard error of the estimate.
 
 ``` {r}
-t <- coef(summary(m))
-t <- data.frame(unlist(t))
+t <- coef(summary(m)) #gives you a list of things from the summary
+t <- data.frame(unlist(t)) #to change format from list to dataframe
 colnames(t) <- c("Est", "SE", "t","p") 
 t
-t$calct <- (t$Est-0)/t$SE
+t$calct <- (t$Est-0)/t$SE #giving us out t value
 t$calcp <- 2 * pt(t$calct, df=998, lower.tail = FALSE) # x2 because is 2-tailed test
 t
 ```
@@ -250,7 +250,7 @@ t
 We can get confidence intervals for our estimates easily, too, using either the approach we've used before by hand or by using a built in function.
 
 ``` {r}
-t$lower <- t$Est - qt(0.975, df=998)*t$SE
+t$lower <- t$Est - qt(0.975, df=998)*t$SE #go a certain dis out from the mean times standard error
 t$upper <- t$Est + qt(0.975, df=998)*t$SE
 ci <- c(t$lower, t$upper) # by hand
 ci
@@ -284,14 +284,14 @@ The `predict()` function allows us to generate predicted (i.e.,  <img src="img/y
 
 ``` {r}
 m <- lm(data=d,height~weight)
-h_hat <- predict(m, newdata=data.frame(weight=d$weight))
-df <- data.frame(cbind(d$weight,d$height,h_hat))
+h_hat <- predict(m, newdata=data.frame(weight=d$weight)) #so, given the  x values only, how well does this model predict the y values?
+df <- data.frame(cbind(d$weight,d$height,h_hat)) #you can compare the real y values with the predicted ones
 names(df) <- c("x","y","yhat")
 head(df)
 g <- ggplot(data=df,aes(x=x,y=yhat))
 g <- g + geom_point()
 g <- g + geom_point(aes(x=x,y=y),colour="red")
-g <- g + geom_segment(aes(x=x, y=yhat, xend=x, yend=y))
+g <- g + geom_segment(aes(x=x, y=yhat, xend=x, yend=y)) #draws a line between the predicted and actual data. These are the residuals
 g
 ```
 Each vertical line in the figure above represents a **residual**, the difference between the observed and the fitted or predicted value of y at the given x values.
